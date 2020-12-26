@@ -1,38 +1,43 @@
 <template>
   <input type="number" placeholder="Source value" v-model="sourceValue" />
-  <input type="text" placeholder="Source currency" v-model="sourceCurrency" />
-  <input type="text" placeholder="Target currency" v-model="targetCurrency" />
+  <CurrencyList :currencies="currencies" v-model="sourceCurrency" />
   <br />
-  <p>sourceValue is: {{ sourceValue }}</p>
-  <p>sourceCurrency is: {{ sourceCurrency }}</p>
-  <p>targetCurrency is: {{ targetCurrency }}</p>
+  <CurrencyList :currencies="currencies" v-model="targetCurrency" />
   <br />
   <p>result: {{ resultValue }}</p>
   <br />
   <button @click="convert">convert</button>
-  <p>Currencies: {{ currencies }}</p>
+  <p>sourceCurrency: {{ sourceCurrency }}</p>
+  <p>targetCurrency: {{ targetCurrency }}</p>
 </template>
 
 <script>
-import { ref } from "vue";
+import CurrencyList from "./CurrencyList";
+import { ref, watch } from "vue";
 import { useFiatExchangeApi } from "../composables/fiatExchangeApi";
 
 export default {
+  components: { CurrencyList },
   setup() {
-    const sourceCurrency = ref("");
-    const targetCurrency = ref("");
-    const sourceValue = ref(0);
-    const resultValue = ref(0);
-
     const { fiatCurrencies, fiatConvert } = useFiatExchangeApi();
+    const [sourceCurrency, targetCurrency] = [ref(""), ref("")];
+    const [sourceValue, resultValue] = [ref(0), ref(0)];
 
-    const convert = async () => {
-      resultValue.value = await fiatConvert(
+    const convert = () => {
+      resultValue.value = fiatConvert(
         sourceCurrency.value,
         targetCurrency.value,
         sourceValue.value
       );
     };
+
+    watch(
+      () => fiatCurrencies.value,
+      (currencies) => {
+        sourceCurrency.value = currencies[0];
+        targetCurrency.value = currencies[0];
+      }
+    );
 
     return {
       sourceCurrency,
