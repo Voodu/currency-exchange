@@ -30,6 +30,19 @@ registerRoute(
   })
 );
 
+const cryptoCacheTimeLeft = fiatCacheTimeLeft;
+registerRoute(
+  new RegExp("https://api.binance.com/api/v3/ticker/price"),
+  new CacheFirst({
+    cacheName: "crypto-rates",
+    plugins: [
+      new Plugin({
+        maxAgeSeconds: cryptoCacheTimeLeft // TODO - Should it be cached at all?
+      })
+    ]
+  })
+);
+
 registerRoute(
   /\.(?:png|gif|jpg|jpeg|svg)$/,
   new StaleWhileRevalidate({
