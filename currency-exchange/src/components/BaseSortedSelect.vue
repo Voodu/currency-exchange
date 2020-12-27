@@ -3,11 +3,7 @@
     :value="modelValue"
     @change="$emit('update:modelValue', $event.target.value)"
   >
-    <option
-      v-for="value in sortedValues"
-      :key="value"
-      :value="value"
-    >
+    <option v-for="value in sortedValues" :key="value" :value="value">
       {{ value }}
     </option>
   </select>
