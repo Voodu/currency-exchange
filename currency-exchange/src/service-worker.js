@@ -1,3 +1,4 @@
+import moment from "moment-timezone";
 import { registerRoute } from "workbox-routing";
 import {
   NetworkFirst,
@@ -8,6 +9,26 @@ import { Plugin } from "workbox-expiration";
 import { precacheAndRoute } from "workbox-precaching";
 
 precacheAndRoute([]);
+
+const fiatCacheExpTime = moment()
+  .tz("Europe/Berlin")
+  .add(1, "day")
+  .startOf("day");
+const fiatCacheTimeLeft = moment
+  .duration(fiatCacheExpTime.diff(moment()))
+  .asSeconds();
+
+registerRoute(
+  new RegExp("https://api.exchangeratesapi.io/latest"),
+  new CacheFirst({
+    cacheName: "fiat-rates",
+    plugins: [
+      new Plugin({
+        maxAgeSeconds: fiatCacheTimeLeft // start of the next day
+      })
+    ]
+  })
+);
 
 registerRoute(
   /\.(?:png|gif|jpg|jpeg|svg)$/,
@@ -26,17 +47,5 @@ registerRoute(
   new RegExp("https://newsapi.org/v2/top-headlines(.*)"),
   new NetworkFirst({
     cacheName: "news-api"
-  })
-);
-
-registerRoute(
-  new RegExp("https://fonts.(?:googleapis|gstatic).com/(.*)"),
-  new CacheFirst({
-    cacheName: "googleapis",
-    plugins: [
-      new Plugin({
-        maxEntries: 30
-      })
-    ]
   })
 );
