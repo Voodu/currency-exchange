@@ -4,11 +4,11 @@
     @change="$emit('update:modelValue', $event.target.value)"
   >
     <option
-      v-for="currency in sortedCurrencies"
-      :key="currency"
-      :value="currency"
+      v-for="value in sortedValues"
+      :key="value"
+      :value="value"
     >
-      {{ currency }}
+      {{ value }}
     </option>
   </select>
   <!-- Purely magical comment -->
@@ -18,11 +18,11 @@
 import { computed } from "vue";
 
 export default {
-  props: { modelValue: String, currencies: Array },
+  props: { modelValue: String, values: Array },
   emits: ["update:modelValue"],
   setup(props) {
-    const sortedCurrencies = computed(() => [...props.currencies].sort());
-    return { sortedCurrencies };
+    const sortedValues = computed(() => [...props.values].sort());
+    return { sortedValues };
   }
 };
 </script>

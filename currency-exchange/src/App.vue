@@ -1,14 +1,14 @@
 <template>
-  <HelloWorld />
+  <CurrencyExchanger />
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import CurrencyExchanger from "./components/CurrencyExchanger.vue";
 
 export default {
   name: "App",
   components: {
-    HelloWorld
+    CurrencyExchanger
   }
 };
 </script>

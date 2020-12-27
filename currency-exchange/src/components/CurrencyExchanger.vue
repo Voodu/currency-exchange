@@ -1,23 +1,21 @@
 <template>
   <input type="number" placeholder="Source value" v-model="sourceValue" />
-  <CurrencyList :currencies="currencies" v-model="sourceCurrency" />
+  <BaseSortedSelect :values="currencies" v-model="sourceCurrency" />
   <br />
-  <CurrencyList :currencies="currencies" v-model="targetCurrency" />
+  <BaseSortedSelect :values="currencies" v-model="targetCurrency" />
   <br />
   <p>result: {{ resultValue }}</p>
   <br />
   <button @click="convert">convert</button>
-  <p>sourceCurrency: {{ sourceCurrency }}</p>
-  <p>targetCurrency: {{ targetCurrency }}</p>
 </template>
 
 <script>
-import CurrencyList from "./CurrencyList";
+import BaseSortedSelect from "./BaseSortedSelect";
 import { ref, watch } from "vue";
 import { useFiatExchangeApi } from "../composables/fiatExchangeApi";
 
 export default {
-  components: { CurrencyList },
+  components: { BaseSortedSelect },
   setup() {
     const { fiatCurrencies, fiatConvert } = useFiatExchangeApi();
     const [sourceCurrency, targetCurrency] = [ref(""), ref("")];
