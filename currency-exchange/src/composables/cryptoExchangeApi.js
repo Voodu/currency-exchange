@@ -1,42 +1,11 @@
 import { onMounted, ref, computed } from "vue";
 
+const BASE = "BTC";
+
 export function useCryptoExchangeApi() {
   const exchangeRates = ref({});
 
-  onMounted(async () => {
-    const ticker = await getTicker();
-    const symbols = await getSymbolDefinitions();
-
-    exchangeRates.value["BTC"] = 1.0;
-    let original = new Set(["BTC"]);
-    let btcSymbols = symbols.filter(s => s.base === "BTC" || s.quote === "BTC");
-    for (const s of btcSymbols) {
-      if (s.base == "BTC") {
-        exchangeRates.value[s.quote] = ticker[s.base + s.quote];
-        original.add(s.quote);
-      } else {
-        exchangeRates.value[s.base] = 1.0 / ticker[s.base + s.quote];
-        original.add(s.base);
-      }
-    }
-
-    let calculated = new Set();
-    let nonBtcSymbols = symbols.filter(
-      s => s.base !== "BTC" && s.quote !== "BTC"
-    );
-    for (const s of nonBtcSymbols) {
-      if (!original.has(s.base)) {
-        exchangeRates.value[s.base] =
-          exchangeRates.value[s.quote] / ticker[s.base + s.quote];
-        calculated.add(s.base);
-      } else if (!original.has(s.quote)) {
-        exchangeRates.value[s.quote] =
-          exchangeRates.value[s.base] / ticker[s.base + s.quote];
-        calculated.add(s.quote);
-      }
-      // Catch error if both values are unsupported (there won't be any rate)
-    }
-  });
+  onMounted(async () => await setupExchangeRates(exchangeRates));
 
   const cryptoConvert = (sourceCurrency, targetCurrency, value) => {
     return (
@@ -52,20 +21,71 @@ export function useCryptoExchangeApi() {
   };
 }
 
-async function getSymbolDefinitions() {
+async function setupExchangeRates(exchangeRates) {
+  const apiRates = await getApiRates();
+  const exchangeInfo = await getExchangeInfo();
+
+  exchangeRates.value[BASE] = 1.0;
+  exchangeRates.value = {
+    ...exchangeRates.value,
+    ...getBaseRates(exchangeInfo, apiRates)
+  };
+  const knownSymbols = new Set(Object.keys(exchangeRates.value));
+  exchangeRates.value = {
+    ...exchangeRates.value,
+    ...getCalcRates(exchangeInfo, apiRates, exchangeRates.value, knownSymbols)
+  };
+}
+
+function getBaseRates(symbols, apiRates) {
+  const rates = {};
+  const baseSymbols = symbols.filter(s => s.src === BASE || s.dst === BASE);
+  for (const s of baseSymbols) {
+    if (s.src == BASE) {
+      rates[s.dst] = apiRates[s.src + s.dst];
+    } else {
+      rates[s.src] = 1.0 / apiRates[s.src + s.dst];
+    }
+  }
+
+  return rates;
+}
+
+function getCalcRates(symbols, apiRates, knownRates, knownSymbols) {
+  const rates = {};
+  const otherSymbols = symbols.filter(s => s.src !== BASE && s.dst !== BASE);
+  for (const s of otherSymbols) {
+    const [hasSrc, hasDst] = [knownSymbols.has(s.src), knownSymbols.has(s.dst)];
+    if (!hasSrc && !hasDst) {
+      console.error(`Cannot calculate conversion for ${s.src} - ${s.dst}`);
+      continue; // It's impossible to calculate two unknown symbols
+    }
+    if (!hasSrc) {
+      rates[s.src] = knownRates[s.dst] / apiRates[s.src + s.dst];
+    } else if (!hasDst) {
+      rates[s.dst] = knownRates[s.src] / apiRates[s.src + s.dst];
+    } // else: both were already discovered indirectly from BASE
+  }
+
+  return rates;
+}
+
+async function getExchangeInfo() {
   const exchangeResponse = await (
     await fetch("https://api.binance.com/api/v3/exchangeInfo")
   ).json();
   const symbols = exchangeResponse.symbols
-    .filter(x => x.status != "BREAK") // w/o that some currencies are double-defined in the API and their conversion is ambiguous, ex. BTCPAX and PAXBTC
+    // filter excludes double-defined currencies, ex. BTCPAX and PAXBTC
+    .filter(x => x.status != "BREAK")
     .map(x => ({
-      base: x.baseAsset,
-      quote: x.quoteAsset
+      src: x.baseAsset,
+      dst: x.quoteAsset
     }));
+
   return symbols;
 }
 
-async function getTicker() {
+async function getApiRates() {
   const tickerResponse = await (
     await fetch("https://api.binance.com/api/v3/ticker/price")
   ).json();
@@ -73,5 +93,6 @@ async function getTicker() {
     (acc, curr) => ((acc[curr.symbol] = parseFloat(curr.price)), acc),
     {}
   );
+
   return ticker;
 }

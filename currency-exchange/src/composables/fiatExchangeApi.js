@@ -1,14 +1,16 @@
 import { onMounted, ref, computed } from "vue";
 
+const BASE = "EUR";
+
 export function useFiatExchangeApi() {
   const exchangeRates = ref({});
 
   onMounted(async () => {
     const response = await (
-      await fetch("https://api.exchangeratesapi.io/latest")
+      await fetch(`https://api.exchangeratesapi.io/latest?base=${BASE}`)
     ).json();
     exchangeRates.value = response.rates;
-    exchangeRates.value[response.base] = 1.0;
+    exchangeRates.value[BASE] = 1.0;
   });
 
   const fiatConvert = (sourceCurrency, targetCurrency, value) => {
