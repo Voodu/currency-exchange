@@ -4,21 +4,8 @@ export function useCryptoExchangeApi() {
   const exchangeRates = ref({});
 
   onMounted(async () => {
-    const tickerResponse = await (
-      await fetch("https://api.binance.com/api/v3/ticker/price")
-    ).json();
-    const ticker = tickerResponse.reduce(
-      (acc, curr) => ((acc[curr.symbol] = parseFloat(curr.price)), acc),
-      {}
-    );
-
-    const exchangeResponse = await (
-      await fetch("https://api.binance.com/api/v3/exchangeInfo")
-    ).json();
-    const symbols = exchangeResponse.symbols.map(x => ({
-      base: x.baseAsset,
-      quote: x.quoteAsset
-    }));
+    const ticker = await getTicker();
+    const symbols = await getSymbolDefinitions();
 
     exchangeRates.value["BTC"] = 1.0;
     let original = new Set(["BTC"]);
@@ -63,4 +50,28 @@ export function useCryptoExchangeApi() {
     cryptoCurrencies: computed(() => Object.keys(exchangeRates.value)),
     cryptoConvert
   };
+}
+
+async function getSymbolDefinitions() {
+  const exchangeResponse = await (
+    await fetch("https://api.binance.com/api/v3/exchangeInfo")
+  ).json();
+  const symbols = exchangeResponse.symbols
+    .filter(x => x.status != "BREAK") // w/o that some currencies are double-defined in the API and their conversion is ambiguous, ex. BTCPAX and PAXBTC
+    .map(x => ({
+      base: x.baseAsset,
+      quote: x.quoteAsset
+    }));
+  return symbols;
+}
+
+async function getTicker() {
+  const tickerResponse = await (
+    await fetch("https://api.binance.com/api/v3/ticker/price")
+  ).json();
+  const ticker = tickerResponse.reduce(
+    (acc, curr) => ((acc[curr.symbol] = parseFloat(curr.price)), acc),
+    {}
+  );
+  return ticker;
 }
