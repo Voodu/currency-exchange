@@ -19,7 +19,7 @@ const fiatCacheTimeLeft = moment
   .asSeconds();
 
 registerRoute(
-  new RegExp("https://api.exchangeratesapi.io/latest"),
+  /https:\/\/api\.exchangeratesapi\.io.*/,
   new CacheFirst({
     cacheName: "fiat-rates",
     plugins: [
@@ -32,7 +32,7 @@ registerRoute(
 
 const cryptoCacheTimeLeft = fiatCacheTimeLeft;
 registerRoute(
-  new RegExp("https://api.binance.com/api/v3/ticker/price"),
+  /https:\/\/api\.binance\.com.*/,
   new CacheFirst({
     cacheName: "crypto-rates",
     plugins: [
