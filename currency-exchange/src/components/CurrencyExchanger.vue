@@ -12,17 +12,17 @@
 <script>
 import BaseSortedSelect from "./BaseSortedSelect";
 import { ref, watch } from "vue";
-import { useFiatExchangeApi } from "../composables/fiatExchangeApi";
+import { useCryptoExchangeApi } from "../composables/cryptoExchangeApi";
 
 export default {
   components: { BaseSortedSelect },
   setup() {
-    const { fiatCurrencies, fiatConvert } = useFiatExchangeApi();
+    const { cryptoCurrencies, cryptoConvert } = useCryptoExchangeApi();
     const [sourceCurrency, targetCurrency] = [ref(""), ref("")];
     const [sourceValue, resultValue] = [ref(0), ref(0)];
 
     const convert = () => {
-      resultValue.value = fiatConvert(
+      resultValue.value = cryptoConvert(
         sourceCurrency.value,
         targetCurrency.value,
         sourceValue.value
@@ -30,7 +30,7 @@ export default {
     };
 
     watch(
-      () => fiatCurrencies.value,
+      () => cryptoCurrencies.value,
       (currencies) => {
         sourceCurrency.value = currencies[0];
         targetCurrency.value = currencies[0];
@@ -42,7 +42,7 @@ export default {
       targetCurrency,
       sourceValue,
       resultValue,
-      currencies: fiatCurrencies,
+      currencies: cryptoCurrencies,
       convert
     };
   }
