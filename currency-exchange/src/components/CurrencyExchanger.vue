@@ -1,11 +1,16 @@
 <template>
-  <input type="number" placeholder="Source value" v-model="srcValue" />
-  <BaseSortedSelect :values="currencies" v-model="srcCurrency" />
-  <br />
-  <BaseSortedSelect :values="currencies" v-model="dstCurrency" />
-  <br />
-  <p>result: {{ resultValue }}</p>
-  <button @click="swapCurrencies">Swap</button>
+  <div class="d-flex flex-wrap">
+    <input
+      class="w-25"
+      type="number"
+      placeholder="Source value"
+      v-model="srcValue"
+    />
+    <BaseSortedSelect class="w-25" :values="currencies" v-model="srcCurrency" />
+    <button class="btn btn-primary w-100" @click="swapCurrencies">SWAP</button>
+    <BaseSortedSelect class="w-25" :values="currencies" v-model="dstCurrency" />
+    <div class="w-25">result: {{ resultValue }}</div>
+  </div>
 </template>
 
 <script>
@@ -52,4 +57,5 @@ export default {
 };
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+</style>
