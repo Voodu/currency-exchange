@@ -1,8 +1,8 @@
 <template>
   <input type="number" placeholder="Source value" v-model="sourceValue" />
-  <BaseSortedSelect :values="currencies" v-model="sourceCurrency" />
+  <BaseSortedSelect :values="currencies" v-model="srcCurrency" />
   <br />
-  <BaseSortedSelect :values="currencies" v-model="targetCurrency" />
+  <BaseSortedSelect :values="currencies" v-model="dstCurrency" />
   <br />
   <p>result: {{ resultValue }}</p>
   <br />
@@ -12,37 +12,37 @@
 <script>
 import BaseSortedSelect from "./BaseSortedSelect";
 import { ref, watch } from "vue";
-import { useCryptoExchangeApi } from "../composables/cryptoExchangeApi";
+import { useApiCombiner } from "../composables/apiCombiner";
 
 export default {
   components: { BaseSortedSelect },
   setup() {
-    const { cryptoCurrencies, cryptoConvert } = useCryptoExchangeApi();
-    const [sourceCurrency, targetCurrency] = [ref(""), ref("")];
+    const { currencies: apiCurrencies, convert: apiConvert } = useApiCombiner();
+    const [srcCurrency, dstCurrency] = [ref(""), ref("")];
     const [sourceValue, resultValue] = [ref(0), ref(0)];
 
     const convert = () => {
-      resultValue.value = cryptoConvert(
-        sourceCurrency.value,
-        targetCurrency.value,
+      resultValue.value = apiConvert(
+        srcCurrency.value,
+        dstCurrency.value,
         sourceValue.value
       );
     };
 
     watch(
-      () => cryptoCurrencies.value,
+      () => apiCurrencies.value,
       (currencies) => {
-        sourceCurrency.value = currencies[0];
-        targetCurrency.value = currencies[0];
+        srcCurrency.value = currencies[0];
+        dstCurrency.value = currencies[0];
       }
     );
 
     return {
-      sourceCurrency,
-      targetCurrency,
+      srcCurrency,
+      dstCurrency,
       sourceValue,
       resultValue,
-      currencies: cryptoCurrencies,
+      currencies: apiCurrencies,
       convert
     };
   }
