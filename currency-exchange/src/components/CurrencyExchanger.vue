@@ -1,21 +1,34 @@
 <template>
   <div class="d-flex flex-wrap">
     <input
-      class="w-25"
+      class="form-control"
       type="number"
       placeholder="Source value"
       v-model="srcValue"
     />
-    <BaseSortedSelect class="w-25" :values="currencies" v-model="srcCurrency" />
-    <button class="btn btn-primary w-100" @click="swapCurrencies">SWAP</button>
-    <BaseSortedSelect class="w-25" :values="currencies" v-model="dstCurrency" />
-    <div class="w-25">result: {{ resultValue }}</div>
+    <BaseSortedSelect
+      class="form-control"
+      :values="currencies"
+      v-model="srcCurrency"
+    />
+    <button
+      class="btn btn-outline-primary w-100 mt-2 mb-2"
+      @click="swapCurrencies"
+    >
+      SWAP
+    </button>
+    <BaseSortedSelect
+      class="form-control"
+      :values="currencies"
+      v-model="dstCurrency"
+    />
+    <input class="form-control" disabled :value="roundedResult" />
   </div>
 </template>
 
 <script>
 import BaseSortedSelect from "./BaseSortedSelect";
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useApiCombiner } from "../composables/apiCombiner";
 
 export default {
@@ -38,6 +51,10 @@ export default {
       );
     });
 
+    const roundedResult = computed(
+      () => Math.round(resultValue.value * 1e8 + Number.EPSILON) / 1e8
+    );
+
     const swapCurrencies = () => {
       [srcCurrency.value, dstCurrency.value] = [
         dstCurrency.value,
@@ -49,7 +66,7 @@ export default {
       srcCurrency,
       dstCurrency,
       srcValue,
-      resultValue,
+      roundedResult,
       currencies: apiCurrencies,
       swapCurrencies
     };
