@@ -7,7 +7,7 @@ export function useCryptoExchangeApi() {
 
   onMounted(async () => await setupExchangeRates(exchangeRates));
 
-  const cryptoConvert = (sourceCurrency, targetCurrency, value) => {
+  const convert = (sourceCurrency, targetCurrency, value) => {
     return (
       value *
       (exchangeRates.value[targetCurrency] /
@@ -16,8 +16,8 @@ export function useCryptoExchangeApi() {
   };
 
   return {
-    cryptoCurrencies: computed(() => Object.keys(exchangeRates.value)),
-    cryptoConvert
+    currencies: computed(() => Object.keys(exchangeRates.value)),
+    convert
   };
 }
 

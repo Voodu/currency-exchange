@@ -1,36 +1,32 @@
-import { onMounted, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { useCryptoExchangeApi } from "../composables/cryptoExchangeApi";
 import { useFiatExchangeApi } from "../composables/fiatExchangeApi";
 
 export function useApiCombiner() {
-  const { cryptoCurrencies } = useCryptoExchangeApi();
-  const { fiatCurrencies } = useFiatExchangeApi();
+  const apis = [useCryptoExchangeApi(), useFiatExchangeApi()];
   //   const exchangeRates = ref({});
-  const allCurrencies = ref([]);
-  onMounted(async () => {});
+  const currencies = ref([]);
 
-  watch(
-    () => fiatCurrencies.value,
-    currencies => {
-      const newValues = [...new Set([...allCurrencies.value, ...currencies])];
-      allCurrencies.value = newValues;
-    }
-  );
+  for (const api of apis) {
+    watchAndCombineCurrencies(api, currencies);
+  }
 
-  watch(
-    () => cryptoCurrencies.value,
-    currencies => {
-      const newValues = [...new Set([...allCurrencies.value, ...currencies])];
-      allCurrencies.value = newValues;
-    }
-  );
-
-  const allConvert = (sourceCurrency, targetCurrency, value) => {
+  const convert = (sourceCurrency, targetCurrency, value) => {
     console.log(sourceCurrency, targetCurrency, value);
   };
 
   return {
-    allCurrencies,
-    allConvert
+    currencies,
+    convert
   };
+}
+
+function watchAndCombineCurrencies(api, allCurrencies) {
+  watch(
+    () => api.currencies.value,
+    currencies => {
+      const newValues = [...new Set([...allCurrencies.value, ...currencies])];
+      allCurrencies.value = newValues;
+    }
+  );
 }

@@ -17,12 +17,12 @@ import { useApiCombiner } from "../composables/apiCombiner";
 export default {
   components: { BaseSortedSelect },
   setup() {
-    const { allCurrencies, allConvert } = useApiCombiner();
+    const { currencies: apiCurrencies, convert: apiConvert } = useApiCombiner();
     const [sourceCurrency, targetCurrency] = [ref(""), ref("")];
     const [sourceValue, resultValue] = [ref(0), ref(0)];
 
     const convert = () => {
-      resultValue.value = allConvert(
+      resultValue.value = apiConvert(
         sourceCurrency.value,
         targetCurrency.value,
         sourceValue.value
@@ -30,7 +30,7 @@ export default {
     };
 
     watch(
-      () => allCurrencies.value,
+      () => apiCurrencies.value,
       (currencies) => {
         sourceCurrency.value = currencies[0];
         targetCurrency.value = currencies[0];
@@ -42,7 +42,7 @@ export default {
       targetCurrency,
       sourceValue,
       resultValue,
-      currencies: allCurrencies,
+      currencies: apiCurrencies,
       convert
     };
   }
