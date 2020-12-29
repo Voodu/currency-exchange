@@ -1,16 +1,40 @@
 <template>
-  <input type="number" placeholder="Source value" v-model="srcValue" />
-  <BaseSortedSelect :values="currencies" v-model="srcCurrency" />
-  <br />
-  <BaseSortedSelect :values="currencies" v-model="dstCurrency" />
-  <br />
-  <p>result: {{ resultValue }}</p>
-  <button @click="swapCurrencies">Swap</button>
+  <div class="d-flex flex-wrap">
+    <input
+      class="form-control"
+      type="number"
+      placeholder="Source value"
+      v-model="srcValue"
+      aria-label="Value to convert"
+    />
+    <BaseSortedSelect
+      class="form-control"
+      :values="currencies"
+      v-model="srcCurrency"
+      aria-label="Source currency"
+    />
+    <button
+      class="btn btn-dark w-100 mt-2 mb-2"
+      @click="swapCurrencies"
+      aria-label="Swap source and target currencies"
+    >
+      SWAP
+    </button>
+    <BaseSortedSelect
+      class="form-control"
+      :values="currencies"
+      v-model="dstCurrency"
+      aria-label="Target currency"
+    />
+    <div class="form-control text-left" aria-label="Result of conversion">
+      {{ roundedResult }}
+    </div>
+  </div>
 </template>
 
 <script>
 import BaseSortedSelect from "./BaseSortedSelect";
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useApiCombiner } from "../composables/apiCombiner";
 
 export default {
@@ -33,6 +57,10 @@ export default {
       );
     });
 
+    const roundedResult = computed(
+      () => Math.round(resultValue.value * 1e8 + Number.EPSILON) / 1e8
+    );
+
     const swapCurrencies = () => {
       [srcCurrency.value, dstCurrency.value] = [
         dstCurrency.value,
@@ -44,7 +72,7 @@ export default {
       srcCurrency,
       dstCurrency,
       srcValue,
-      resultValue,
+      roundedResult,
       currencies: apiCurrencies,
       swapCurrencies
     };
@@ -52,4 +80,5 @@ export default {
 };
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+</style>
