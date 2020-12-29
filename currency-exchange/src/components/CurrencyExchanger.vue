@@ -5,7 +5,7 @@
   <BaseSortedSelect :values="currencies" v-model="dstCurrency" />
   <br />
   <p>result: {{ resultValue }}</p>
-  <br />
+  <button @click="swapCurrencies">Swap</button>
 </template>
 
 <script>
@@ -33,12 +33,20 @@ export default {
       );
     });
 
+    const swapCurrencies = () => {
+      [srcCurrency.value, dstCurrency.value] = [
+        dstCurrency.value,
+        srcCurrency.value
+      ];
+    };
+
     return {
       srcCurrency,
       dstCurrency,
       srcValue,
       resultValue,
-      currencies: apiCurrencies
+      currencies: apiCurrencies,
+      swapCurrencies
     };
   }
 };
