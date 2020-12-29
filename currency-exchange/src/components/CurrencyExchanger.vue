@@ -1,12 +1,11 @@
 <template>
-  <input type="number" placeholder="Source value" v-model="sourceValue" />
+  <input type="number" placeholder="Source value" v-model="srcValue" />
   <BaseSortedSelect :values="currencies" v-model="srcCurrency" />
   <br />
   <BaseSortedSelect :values="currencies" v-model="dstCurrency" />
   <br />
   <p>result: {{ resultValue }}</p>
   <br />
-  <button @click="convert">convert</button>
 </template>
 
 <script>
@@ -19,31 +18,27 @@ export default {
   setup() {
     const { currencies: apiCurrencies, convert: apiConvert } = useApiCombiner();
     const [srcCurrency, dstCurrency] = [ref(""), ref("")];
-    const [sourceValue, resultValue] = [ref(0), ref(0)];
+    const [srcValue, resultValue] = [ref(0), ref(0)];
 
-    const convert = () => {
+    watch(apiCurrencies, (currencies) => {
+      srcCurrency.value = currencies[0];
+      dstCurrency.value = currencies[0];
+    });
+
+    watch([srcCurrency, dstCurrency, srcValue], () => {
       resultValue.value = apiConvert(
         srcCurrency.value,
         dstCurrency.value,
-        sourceValue.value
+        srcValue.value
       );
-    };
-
-    watch(
-      () => apiCurrencies.value,
-      (currencies) => {
-        srcCurrency.value = currencies[0];
-        dstCurrency.value = currencies[0];
-      }
-    );
+    });
 
     return {
       srcCurrency,
       dstCurrency,
-      sourceValue,
+      srcValue,
       resultValue,
-      currencies: apiCurrencies,
-      convert
+      currencies: apiCurrencies
     };
   }
 };

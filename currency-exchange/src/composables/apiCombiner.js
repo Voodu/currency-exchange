@@ -57,7 +57,7 @@ function getApiWithCurrency(apis, srcCurrency) {
 
 function watchAndCombineCurrencies(api, allCurrencies) {
   watch(
-    () => api.currencies.value,
+    api.currencies,
     currencies => {
       const newValues = [...new Set([...allCurrencies.value, ...currencies])];
       allCurrencies.value = newValues;
