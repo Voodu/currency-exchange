@@ -5,15 +5,18 @@
       type="number"
       placeholder="Source value"
       v-model="srcValue"
+      aria-label="Value to convert"
     />
     <BaseSortedSelect
       class="form-control"
       :values="currencies"
       v-model="srcCurrency"
+      aria-label="Source currency"
     />
     <button
-      class="btn btn-outline-primary w-100 mt-2 mb-2"
+      class="btn btn-dark w-100 mt-2 mb-2"
       @click="swapCurrencies"
+      aria-label="Swap source and target currencies"
     >
       SWAP
     </button>
@@ -21,8 +24,11 @@
       class="form-control"
       :values="currencies"
       v-model="dstCurrency"
+      aria-label="Target currency"
     />
-    <input class="form-control" disabled :value="roundedResult" />
+    <div class="form-control text-left" aria-label="Result of conversion">
+      {{ roundedResult }}
+    </div>
   </div>
 </template>
 
