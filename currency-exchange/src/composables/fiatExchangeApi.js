@@ -13,11 +13,10 @@ export function useFiatExchangeApi() {
     exchangeRates.value[BASE] = 1.0;
   });
 
-  const convert = (sourceCurrency, targetCurrency, value) => {
+  const convert = (srcCurrency, dstCurrency, value) => {
     return (
       value *
-      (exchangeRates.value[targetCurrency] /
-        exchangeRates.value[sourceCurrency])
+      (exchangeRates.value[dstCurrency] / exchangeRates.value[srcCurrency])
     );
   };
 

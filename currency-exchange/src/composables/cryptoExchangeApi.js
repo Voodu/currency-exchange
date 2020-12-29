@@ -7,11 +7,10 @@ export function useCryptoExchangeApi() {
 
   onMounted(async () => await setupExchangeRates(exchangeRates));
 
-  const convert = (sourceCurrency, targetCurrency, value) => {
+  const convert = (srcCurrency, dstCurrency, value) => {
     return (
       value *
-      (exchangeRates.value[targetCurrency] /
-        exchangeRates.value[sourceCurrency])
+      (exchangeRates.value[dstCurrency] / exchangeRates.value[srcCurrency])
     );
   };
 
@@ -57,7 +56,7 @@ function getCalcRates(symbols, apiRates, knownRates, knownSymbols) {
   for (const s of otherSymbols) {
     const [hasSrc, hasDst] = [knownSymbols.has(s.src), knownSymbols.has(s.dst)];
     if (!hasSrc && !hasDst) {
-      console.error(`Cannot calculate conversion for ${s.src} - ${s.dst}`);
+      console.warn(`Cannot calculate conversion for ${s.src} - ${s.dst}`);
       continue; // It's impossible to calculate two unknown symbols
     }
     if (!hasSrc) {
