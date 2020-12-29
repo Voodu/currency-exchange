@@ -1,6 +1,6 @@
 import { ref, watch } from "vue";
-import { useCryptoExchangeApi } from "../composables/cryptoExchangeApi";
-import { useFiatExchangeApi } from "../composables/fiatExchangeApi";
+import { useCryptoExchangeApi } from "./cryptoExchangeApi";
+import { useFiatExchangeApi } from "./fiatExchangeApi";
 
 const BASE = "EUR";
 
@@ -56,11 +56,8 @@ function getApiWithCurrency(apis, srcCurrency) {
 }
 
 function watchAndCombineCurrencies(api, allCurrencies) {
-  watch(
-    api.currencies,
-    currencies => {
-      const newValues = [...new Set([...allCurrencies.value, ...currencies])];
-      allCurrencies.value = newValues;
-    }
-  );
+  watch(api.currencies, currencies => {
+    const newValues = [...new Set([...allCurrencies.value, ...currencies])];
+    allCurrencies.value = newValues;
+  });
 }
