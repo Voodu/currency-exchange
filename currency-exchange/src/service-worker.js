@@ -3,7 +3,7 @@ importScripts(
   "https://momentjs.com/downloads/moment-timezone-with-data-10-year-range.min.js"
 );
 
-workbox.precaching.precacheAndRoute([]);
+workbox.precaching.precacheAndRoute(self.__precacheManifest);
 
 const fiatCacheExpTime = moment()
   .tz("Europe/Berlin")
