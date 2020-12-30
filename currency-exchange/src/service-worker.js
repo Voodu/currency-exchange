@@ -1,14 +1,9 @@
-import moment from "moment-timezone";
-import { registerRoute } from "workbox-routing";
-import {
-  NetworkFirst,
-  StaleWhileRevalidate,
-  CacheFirst
-} from "workbox-strategies";
-import { Plugin } from "workbox-expiration";
-import { precacheAndRoute } from "workbox-precaching";
+importScripts(
+  "https://momentjs.com/downloads/moment.min.js",
+  "https://momentjs.com/downloads/moment-timezone-with-data-10-year-range.min.js"
+);
 
-precacheAndRoute([]);
+workbox.precaching.precacheAndRoute([]);
 
 const fiatCacheExpTime = moment()
   .tz("Europe/Berlin")
@@ -18,12 +13,12 @@ const fiatCacheTimeLeft = moment
   .duration(fiatCacheExpTime.diff(moment()))
   .asSeconds();
 
-registerRoute(
+workbox.routing.registerRoute(
   /https:\/\/api\.exchangeratesapi\.io.*/,
-  new CacheFirst({
+  new workbox.strategies.CacheFirst({
     cacheName: "fiat-rates",
     plugins: [
-      new Plugin({
+      new workbox.expiration.Plugin({
         maxAgeSeconds: fiatCacheTimeLeft // start of the next day
       })
     ]
@@ -31,24 +26,24 @@ registerRoute(
 );
 
 const cryptoCacheTimeLeft = fiatCacheTimeLeft;
-registerRoute(
+workbox.routing.registerRoute(
   /https:\/\/api\.binance\.com.*/,
-  new CacheFirst({
+  new workbox.strategies.CacheFirst({
     cacheName: "crypto-rates",
     plugins: [
-      new Plugin({
+      new workbox.expiration.Plugin({
         maxAgeSeconds: cryptoCacheTimeLeft // TODO - Should it be cached at all?
       })
     ]
   })
 );
 
-registerRoute(
+workbox.routing.registerRoute(
   /\.(?:png|gif|jpg|jpeg|svg)$/,
-  new StaleWhileRevalidate({
+  new workbox.strategies.StaleWhileRevalidate({
     cacheName: "images",
     plugins: [
-      new Plugin({
+      new workbox.expiration.Plugin({
         maxEntries: 60,
         maxAgeSeconds: 30 * 24 * 60 * 60 // 30 Days
       })
@@ -56,9 +51,9 @@ registerRoute(
   })
 );
 
-registerRoute(
+workbox.routing.registerRoute(
   new RegExp("https://newsapi.org/v2/top-headlines(.*)"),
-  new NetworkFirst({
+  new workbox.strategies.NetworkFirst({
     cacheName: "news-api"
   })
 );
