@@ -35,7 +35,7 @@
 <script>
 import BaseSortedSelect from "./BaseSortedSelect";
 import { ref, watch, computed } from "vue";
-import { useApiCombiner } from "../composables/apiCombiner";
+import { useApiCombiner } from "@/composables/apiCombiner";
 
 export default {
   components: { BaseSortedSelect },

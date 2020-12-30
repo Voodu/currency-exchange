@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import CurrencyExchanger from "./components/CurrencyExchanger.vue";
+import CurrencyExchanger from "@/components/CurrencyExchanger";
 
 export default {
   name: "App",
