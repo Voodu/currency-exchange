@@ -6,6 +6,8 @@
       placeholder="Source value"
       v-model="srcValue"
       aria-label="Value to convert"
+      min="1"
+      step="any"
     />
     <BaseSortedSelect
       class="form-control"
@@ -42,7 +44,7 @@ export default {
   setup() {
     const { currencies: apiCurrencies, convert: apiConvert } = useApiCombiner();
     const [srcCurrency, dstCurrency] = [ref(""), ref("")];
-    const [srcValue, resultValue] = [ref(0), ref(0)];
+    const [srcValue, resultValue] = [ref(1), ref(1)];
 
     watch(apiCurrencies, (currencies) => {
       srcCurrency.value = currencies[0];
@@ -55,6 +57,12 @@ export default {
         dstCurrency.value,
         srcValue.value
       );
+    });
+
+    watch(srcValue, (current, prev) => {
+      if (current < 0) {
+        srcValue.value = prev;
+      }
     });
 
     const roundedResult = computed(
