@@ -39,7 +39,7 @@ workbox.routing.registerRoute(
 );
 
 workbox.routing.registerRoute(
-  /\.(?:png|gif|jpg|jpeg|svg)$/,
+  /\.(?:png|ico|gif|jpg|jpeg|svg)$/,
   new workbox.strategies.StaleWhileRevalidate({
     cacheName: "images",
     plugins: [
