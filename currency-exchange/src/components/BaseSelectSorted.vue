@@ -1,5 +1,6 @@
 <template>
   <select
+    class="form-control"
     :value="modelValue"
     @change="$emit('update:modelValue', $event.target.value)"
   >
