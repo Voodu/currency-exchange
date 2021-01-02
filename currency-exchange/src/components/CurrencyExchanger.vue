@@ -35,6 +35,8 @@
 <script>
 import BaseSelectSorted from "./BaseSelectSorted";
 import { ref, watch, computed } from "vue";
+import { useCryptoExchangeApi } from "@/composables/cryptoExchangeApi";
+import { useFiatExchangeApi } from "@/composables/fiatExchangeApi";
 import { useApiCombiner } from "@/composables/apiCombiner";
 
 /**
@@ -44,7 +46,10 @@ import { useApiCombiner } from "@/composables/apiCombiner";
 export default {
   components: { BaseSelectSorted },
   setup() {
-    const { currencies: apiCurrencies, convert: apiConvert } = useApiCombiner();
+    const { currencies: apiCurrencies, convert: apiConvert } = useApiCombiner([
+      useCryptoExchangeApi(),
+      useFiatExchangeApi()
+    ]);
     const [srcCurrency, dstCurrency] = [ref(""), ref("")];
     const [srcValue, resultValue] = [ref(1), ref(1)];
 
