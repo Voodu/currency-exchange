@@ -1,8 +1,12 @@
 import { ExchangeApi } from "@/utils/exchangeApi";
 import { onMounted, ref, computed } from "vue";
 
+// Conversion base. All currencies will be converted into it (if not available directly from the API).
 const BASE = "EUR";
 
+/**
+ * @returns {ExchangeApi} Reactive Exchange API instance for fiat currencies.
+ */
 export function useFiatExchangeApi() {
   const exchangeRates = ref({});
 
