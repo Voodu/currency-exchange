@@ -1,3 +1,4 @@
+import { ExchangeApi } from "@/utils/exchangeApi";
 import { onMounted, ref, computed } from "vue";
 
 const BASE = "BTC";
@@ -14,10 +15,10 @@ export function useCryptoExchangeApi() {
     );
   };
 
-  return {
-    currencies: computed(() => Object.keys(exchangeRates.value)),
+  return new ExchangeApi(
+    computed(() => Object.keys(exchangeRates.value)),
     convert
-  };
+  );
 }
 
 async function setupExchangeRates(exchangeRates) {

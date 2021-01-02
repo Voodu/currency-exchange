@@ -1,3 +1,4 @@
+import { ExchangeApi } from "@/utils/exchangeApi";
 import { onMounted, ref, computed } from "vue";
 
 const BASE = "EUR";
@@ -20,8 +21,8 @@ export function useFiatExchangeApi() {
     );
   };
 
-  return {
-    currencies: computed(() => Object.keys(exchangeRates.value)),
+  return new ExchangeApi(
+    computed(() => Object.keys(exchangeRates.value)),
     convert
-  };
+  );
 }
