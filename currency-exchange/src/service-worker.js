@@ -5,34 +5,36 @@ importScripts(
 
 workbox.precaching.precacheAndRoute(self.__precacheManifest);
 
-const fiatCacheExpTime = moment()
+const cacheExpTime = moment()
   .tz("Europe/Berlin")
   .add(1, "day")
   .startOf("day");
-const fiatCacheTimeLeft = moment
-  .duration(fiatCacheExpTime.diff(moment()))
-  .asSeconds();
+const cacheTimeLeft = moment.duration(cacheExpTime.diff(moment())).asSeconds();
 
+// Fiat rates are updated only at midnight (at least with provided API),
+// so it's okay to serve them from cache all the time and update only at midnight.
 workbox.routing.registerRoute(
   /https:\/\/api\.exchangeratesapi\.io.*/,
   new workbox.strategies.CacheFirst({
     cacheName: "fiat-rates",
     plugins: [
       new workbox.expiration.Plugin({
-        maxAgeSeconds: fiatCacheTimeLeft // start of the next day
+        maxAgeSeconds: cacheTimeLeft
       })
     ]
   })
 );
 
-const cryptoCacheTimeLeft = fiatCacheTimeLeft;
+// Crypto rates are updated very frequently, so it's best to serve them from
+// network by default. However, they can be kept in cache to provide some
+// functionality (i.e. not up-to-date) even when offline.
 workbox.routing.registerRoute(
   /https:\/\/api\.binance\.com.*/,
-  new workbox.strategies.CacheFirst({
+  new workbox.strategies.NetworkFirst({
     cacheName: "crypto-rates",
     plugins: [
       new workbox.expiration.Plugin({
-        maxAgeSeconds: cryptoCacheTimeLeft // TODO - Should it be cached at all?
+        maxAgeSeconds: cacheTimeLeft
       })
     ]
   })
@@ -48,12 +50,5 @@ workbox.routing.registerRoute(
         maxAgeSeconds: 30 * 24 * 60 * 60 // 30 Days
       })
     ]
-  })
-);
-
-workbox.routing.registerRoute(
-  new RegExp("https://newsapi.org/v2/top-headlines(.*)"),
-  new workbox.strategies.NetworkFirst({
-    cacheName: "news-api"
   })
 );
