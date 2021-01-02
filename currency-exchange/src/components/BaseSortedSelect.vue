@@ -7,7 +7,6 @@
       {{ value }}
     </option>
   </select>
-  <!-- Purely magical comment -->
 </template>
 
 <script>
