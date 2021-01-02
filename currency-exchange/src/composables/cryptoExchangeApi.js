@@ -1,7 +1,12 @@
+import { ExchangeApi } from "@/utils/exchangeApi";
 import { onMounted, ref, computed } from "vue";
 
+// Conversion base. All currencies will be converted into it (if not available directly from the API).
 const BASE = "BTC";
 
+/**
+ * @returns {ExchangeApi} Reactive Exchange API instance for crypto currencies.
+ */
 export function useCryptoExchangeApi() {
   const exchangeRates = ref({});
 
@@ -14,12 +19,16 @@ export function useCryptoExchangeApi() {
     );
   };
 
-  return {
-    currencies: computed(() => Object.keys(exchangeRates.value)),
+  return new ExchangeApi(
+    computed(() => Object.keys(exchangeRates.value)),
     convert
-  };
+  );
 }
 
+/**
+ * Sets up all the exchange rates available from the API.
+ * @param {Object} exchangeRates Empty Vue ref to be populated with API data
+ */
 async function setupExchangeRates(exchangeRates) {
   const apiRates = await getApiRates();
   const exchangeInfo = await getExchangeInfo();
@@ -36,6 +45,12 @@ async function setupExchangeRates(exchangeRates) {
   };
 }
 
+/**
+ * Calculates exchange rates from BASE directly from the API data.
+ * @param {Object} symbols Base & Quote asset pairs from exchangeInfo endpoint, ex. {base: "BTC", quote: "USD"}
+ * @param {Object} apiRates Conversion rates between symbols, ex. rates["BTCUSD"] = 25000
+ * @returns {Object} Conversion rates from BASE directly available from the API, ex. rates["USD"] = 25000
+ */
 function getBaseRates(symbols, apiRates) {
   const rates = {};
   const baseSymbols = symbols.filter(s => s.src === BASE || s.dst === BASE);
@@ -50,6 +65,14 @@ function getBaseRates(symbols, apiRates) {
   return rates;
 }
 
+/**
+ * Calculates unknown exchange rates from BASE using already known ones.
+ * @param {Object} symbols Base & Quote asset pairs from exchangeInfo endpoint, ex. {base: "BTC", quote: "USD"}
+ * @param {Object} apiRates Conversion rates between symbols, ex. rates["BTCUSD"] = 25000
+ * @param {Object} knownRates Already known conversion rates, ex. rates["USD"] = 25000
+ * @param {Array.<string>} knownSymbols Symbols which exchange rates are already known, ex. ["BTC", "USD"]
+ * @returns {Object} Calculated conversion rates from BASE, ex. rates["ABC"] = 12345
+ */
 function getCalcRates(symbols, apiRates, knownRates, knownSymbols) {
   const rates = {};
   const otherSymbols = symbols.filter(s => s.src !== BASE && s.dst !== BASE);
@@ -69,6 +92,10 @@ function getCalcRates(symbols, apiRates, knownRates, knownSymbols) {
   return rates;
 }
 
+/**
+ * Fetches exchangeInfo from binance API.
+ * @returns {Array.<Object>} Array with quote-base asset pairs, ex. [{base: "BTC", quote: "USD"}, ...]
+ */
 async function getExchangeInfo() {
   const exchangeResponse = await (
     await fetch("https://api.binance.com/api/v3/exchangeInfo")
@@ -84,6 +111,10 @@ async function getExchangeInfo() {
   return symbols;
 }
 
+/**
+ * Fetches conversion rates from binance API.
+ * @returns {Object} Conversion rates between symbols, ex. rates["BTCTUSD"] = 25000
+ */
 async function getApiRates() {
   const tickerResponse = await (
     await fetch("https://api.binance.com/api/v3/ticker/price")

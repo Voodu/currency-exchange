@@ -35,20 +35,31 @@
 <script>
 import BaseSelectSorted from "./BaseSelectSorted";
 import { ref, watch, computed } from "vue";
+import { useCryptoExchangeApi } from "@/composables/cryptoExchangeApi";
+import { useFiatExchangeApi } from "@/composables/fiatExchangeApi";
 import { useApiCombiner } from "@/composables/apiCombiner";
 
+/**
+ * Component allowing to convert a value between two currencies.
+ * @displayName Currency Exchanger
+ */
 export default {
   components: { BaseSelectSorted },
   setup() {
-    const { currencies: apiCurrencies, convert: apiConvert } = useApiCombiner();
+    const { currencies: apiCurrencies, convert: apiConvert } = useApiCombiner([
+      useCryptoExchangeApi(),
+      useFiatExchangeApi()
+    ]);
     const [srcCurrency, dstCurrency] = [ref(""), ref("")];
     const [srcValue, resultValue] = [ref(1), ref(1)];
 
+    // Currencies from APIs are async, so they must be watched to be updated properly.
     watch(apiCurrencies, (currencies) => {
       srcCurrency.value = currencies[0];
       dstCurrency.value = currencies[0];
     });
 
+    // If any of the input changes, automatically update the result.
     watch([srcCurrency, dstCurrency, srcValue], () => {
       resultValue.value = apiConvert(
         srcCurrency.value,
@@ -57,12 +68,14 @@ export default {
       );
     });
 
+    // Prevent negative input
     watch(srcValue, (current, prev) => {
       if (current < 0) {
         srcValue.value = prev;
       }
     });
 
+    // Round the result to 8 digits after the comma - that's the highest precision from the current APIs
     const roundedResult = computed(
       () => Math.round(resultValue.value * 1e8 + Number.EPSILON) / 1e8
     );

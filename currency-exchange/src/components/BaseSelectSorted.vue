@@ -13,12 +13,23 @@
 <script>
 import { computed } from "vue";
 
+/**
+ * `<select>` wrapper to display Bootstrap-style sorted list with bindable model.
+ * @displayName Select Sorted
+ */
+
 export default {
   props: {
+    /**
+     * Externally bindable model
+     */
     modelValue: {
       type: String,
       required: true
     },
+    /**
+     * Values to be displayed in the list. Must be array with strings.
+     */
     values: {
       type: Array,
       required: true,
