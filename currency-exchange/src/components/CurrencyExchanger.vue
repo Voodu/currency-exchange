@@ -9,8 +9,7 @@
       min="1"
       step="any"
     />
-    <BaseSortedSelect
-      class="form-control"
+    <BaseSelectSorted
       :values="currencies"
       v-model="srcCurrency"
       aria-label="Source currency"
@@ -22,8 +21,7 @@
     >
       SWAP
     </button>
-    <BaseSortedSelect
-      class="form-control"
+    <BaseSelectSorted
       :values="currencies"
       v-model="dstCurrency"
       aria-label="Target currency"
@@ -35,12 +33,12 @@
 </template>
 
 <script>
-import BaseSortedSelect from "./BaseSortedSelect";
+import BaseSelectSorted from "./BaseSelectSorted";
 import { ref, watch, computed } from "vue";
 import { useApiCombiner } from "@/composables/apiCombiner";
 
 export default {
-  components: { BaseSortedSelect },
+  components: { BaseSelectSorted },
   setup() {
     const { currencies: apiCurrencies, convert: apiConvert } = useApiCombiner();
     const [srcCurrency, dstCurrency] = [ref(""), ref("")];
@@ -88,5 +86,4 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

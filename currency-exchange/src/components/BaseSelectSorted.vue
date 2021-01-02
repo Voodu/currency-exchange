@@ -1,5 +1,6 @@
 <template>
   <select
+    class="form-control"
     :value="modelValue"
     @change="$emit('update:modelValue', $event.target.value)"
   >
@@ -13,7 +14,17 @@
 import { computed } from "vue";
 
 export default {
-  props: { modelValue: String, values: Array },
+  props: {
+    modelValue: {
+      type: String,
+      required: true
+    },
+    values: {
+      type: Array,
+      required: true,
+      validator: (arr) => arr.every((x) => typeof x == "string")
+    }
+  },
   emits: ["update:modelValue"],
   setup(props) {
     const sortedValues = computed(() => [...props.values].sort());
